@@ -1,0 +1,365 @@
+import { Link } from "react-router"
+import type { ReactNode } from "react"
+import Icon, { getCategoryIcon, type IconName } from "@/components/ui/Icon"
+import Button from "@/components/ui/Button"
+
+interface SearchFieldProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+  label: string
+  inverse?: boolean
+}
+
+interface FilterItem {
+  name: string
+  count: number
+}
+
+interface FaqItem {
+  question: string
+  answer: string
+}
+
+export function SearchField({
+  value,
+  onChange,
+  placeholder,
+  label,
+  inverse = false,
+}: SearchFieldProps) {
+  return (
+    <div className="relative">
+      <Icon
+        name="search"
+        size={20}
+        className={[
+          "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2",
+          inverse ? "text-background/50" : "text-muted-foreground",
+        ].join(" ")}
+      />
+      <input
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        aria-label={label}
+        className={[
+          "w-full rounded-lg border py-4 pl-12 pr-12 text-sm outline-none transition-all focus:ring-2 focus:ring-ring",
+          inverse
+            ? "border-background/20 bg-background/10 text-background placeholder:text-background/45 focus:border-background/40"
+            : "border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary",
+        ].join(" ")}
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          aria-label="Clear search"
+          className={[
+            "absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md transition-colors",
+            inverse
+              ? "text-background/60 hover:bg-background/10 hover:text-background"
+              : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+          ].join(" ")}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      )}
+    </div>
+  )
+}
+
+export function CatalogVisual({
+  kind,
+  category,
+  label,
+  inverse = false,
+}: {
+  kind: "product" | "service" | "solution" | "resource" | "company"
+  category: string
+  label: string
+  inverse?: boolean
+}) {
+  let icon: IconName
+  if (kind === "product") {
+    icon = getCategoryIcon(category)
+  } else if (kind === "solution") {
+    icon = "solution"
+  } else if (kind === "resource") {
+    icon = "knowledge"
+  } else if (kind === "company") {
+    icon = "people"
+  } else {
+    icon = "service"
+  }
+
+  return (
+    <div
+      className={[
+        "relative aspect-[5/4] overflow-hidden rounded-lg border p-7",
+        inverse
+          ? "border-background/15 bg-background/5"
+          : "border-border bg-cream",
+      ].join(" ")}
+      role="img"
+      aria-label={`${label} conceptual ${kind} illustration`}
+    >
+      <div
+        className={[
+          "absolute -right-12 -top-12 size-52 rounded-full border",
+          inverse ? "border-background/15" : "border-primary/20",
+        ].join(" ")}
+      />
+      <div
+        className={[
+          "absolute bottom-8 right-8 h-1/2 w-1/2 rotate-6 rounded-lg border",
+          inverse
+            ? "border-background/15 bg-background/5"
+            : "border-foreground/10 bg-soft-white/70",
+        ].join(" ")}
+      />
+      <div
+        className={[
+          "relative flex size-16 items-center justify-center rounded-lg",
+          inverse
+            ? "bg-primary text-primary-foreground"
+            : "bg-primary text-primary-foreground",
+        ].join(" ")}
+      >
+        <Icon name={icon} size={28} />
+      </div>
+      <div className="absolute bottom-7 left-7 right-7">
+        <p
+          className={[
+            "mb-2 text-xs font-semibold uppercase tracking-widest",
+            inverse ? "text-background/50" : "text-muted-foreground",
+          ].join(" ")}
+        >
+          {category}
+        </p>
+        <p
+          className={[
+            "font-display text-2xl leading-tight",
+            inverse ? "text-background" : "text-foreground",
+          ].join(" ")}
+        >
+          {label}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export function CategoryLinkCard({
+  name,
+  description,
+  count,
+  href,
+}: {
+  name: string
+  description: string
+  count: number
+  href: string
+}) {
+  return (
+    <Link
+      to={href}
+      className="group grid gap-4 border-t border-border py-5 transition-colors sm:grid-cols-[auto_1fr_auto] sm:items-center"
+    >
+      <span className="flex size-10 items-center justify-center rounded-md bg-rose text-primary">
+        <Icon name={getCategoryIcon(name)} size={19} />
+      </span>
+      <div>
+        <h3 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+          {name}
+        </h3>
+        <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      <span className="flex items-center gap-2 text-xs text-muted-foreground">
+        {count}
+        <Icon
+          name="arrow"
+          size={14}
+          className="transition-transform group-hover:translate-x-1 group-hover:text-primary"
+        />
+      </span>
+    </Link>
+  )
+}
+
+export function FilterChips({
+  items,
+  active,
+  onToggle,
+  onClear,
+}: {
+  items: FilterItem[]
+  active: string[]
+  onToggle: (name: string) => void
+  onClear: () => void
+}) {
+  return (
+    <div
+      className="flex items-center gap-2 overflow-x-auto pb-1"
+      role="group"
+      aria-label="Filter by category"
+    >
+      {active.length > 0 && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="shrink-0 rounded-md px-3 py-2 text-xs font-semibold text-primary hover:bg-rose"
+        >
+          Clear filters
+        </button>
+      )}
+      {items.map((item) => {
+        const selected = active.includes(item.name)
+        return (
+          <button
+            type="button"
+            key={item.name}
+            onClick={() => onToggle(item.name)}
+            aria-pressed={selected}
+            className={[
+              "shrink-0 rounded-md border px-3 py-2 text-xs font-medium transition-colors",
+              selected
+                ? "border-foreground bg-foreground text-background"
+                : "border-border bg-card text-muted-foreground hover:border-foreground/25 hover:text-foreground",
+            ].join(" ")}
+          >
+            {item.name} <span className="opacity-60">{item.count}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+export function NumberedFeature({
+  number,
+  title,
+  children,
+  icon,
+  inverse = false,
+}: {
+  number: string
+  title: string
+  children: ReactNode
+  icon?: IconName
+  inverse?: boolean
+}) {
+  return (
+    <div
+      className={[
+        "border-t py-7",
+        inverse ? "border-background/15" : "border-border",
+      ].join(" ")}
+    >
+      <div className="mb-5 flex items-center justify-between">
+        <span className="text-xs font-semibold text-primary">{number}</span>
+        {icon && (
+          <Icon
+            name={icon}
+            size={18}
+            className={inverse ? "text-background/45" : "text-muted-foreground"}
+          />
+        )}
+      </div>
+      <h3
+        className={[
+          "mb-3 text-base font-semibold",
+          inverse ? "text-background" : "text-foreground",
+        ].join(" ")}
+      >
+        {title}
+      </h3>
+      <div
+        className={[
+          "text-sm leading-relaxed",
+          inverse ? "text-background/60" : "text-muted-foreground",
+        ].join(" ")}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export function DetailFaq({ items }: { items: FaqItem[] }) {
+  if (items.length === 0) return null
+
+  return (
+    <div className="divide-y divide-border border-y border-border">
+      {items.map((item) => (
+        <details key={item.question} className="group py-6">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-base font-semibold text-foreground transition-colors hover:text-primary">
+            {item.question}
+            <span
+              className="text-2xl font-light text-primary transition-transform group-open:rotate-45"
+              aria-hidden="true"
+            >
+              +
+            </span>
+          </summary>
+          <p className="max-w-2xl pt-4 text-sm leading-relaxed text-muted-foreground">
+            {item.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  )
+}
+
+export function CatalogCta({
+  title,
+  copy,
+  primaryLabel,
+  primaryTo,
+  secondaryLabel,
+  secondaryTo,
+}: {
+  title: string
+  copy: string
+  primaryLabel: string
+  primaryTo: string
+  secondaryLabel?: string
+  secondaryTo?: string
+}) {
+  return (
+    <section className="bg-charcoal py-20 text-background lg:py-24">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8">
+        <div className="max-w-3xl">
+          <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-primary">
+            Start a conversation
+          </p>
+          <h2 className="font-display text-4xl leading-tight sm:text-5xl">
+            {title}
+          </h2>
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-background/65">
+            {copy}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-3">
+          <Button as="link" to={primaryTo} variant="primary" size="lg">
+            {primaryLabel}
+          </Button>
+          {secondaryLabel && secondaryTo && (
+            <Button
+              as="link"
+              to={secondaryTo}
+              variant="secondary"
+              size="lg"
+              className="border-background text-background hover:bg-background hover:text-foreground"
+            >
+              {secondaryLabel}
+            </Button>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

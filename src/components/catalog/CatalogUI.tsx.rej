@@ -1,0 +1,31 @@
+--- src/components/catalog/CatalogUI.tsx
++++ src/components/catalog/CatalogUI.tsx
+@@ -43,15 +43,26 @@
+ export function CatalogVisual({
+   kind,
+   category,
+   label,
+   inverse = false,
+ }: {
+-  kind: "product" | "service"
++  kind: "product" | "service" | "solution" | "resource" | "company"
+   category: string
+   label: string
+   inverse?: boolean
+ }) {
+-  const icon = kind === "product" ? getCategoryIcon(category) : "service"
++  let icon: IconName
++  if (kind === "product") {
++    icon = getCategoryIcon(category)
++  } else if (kind === "solution") {
++    icon = "solution"
++  } else if (kind === "resource") {
++    icon = "knowledge"
++  } else if (kind === "company") {
++    icon = "people"
++  } else {
++    icon = "service"
++  }
+ 
+   return (
+     <div
